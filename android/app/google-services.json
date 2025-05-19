@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "752695253617",
+    "project_id": "unveilapp-e81fe",
+    "storage_bucket": "unveilapp-e81fe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752695253617:android:9ca7275d8f8d7df817d9d0",
+        "android_client_info": {
+          "package_name": "com.example.unveilapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "752695253617-qmgv8k70vfci5a9erocpglu7j4tlm07e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.unveilapp",
+            "certificate_hash": "8d85ecfa2f1a1637aa26d8c4258df7bce0a70791"
+          }
+        },
+        {
+          "client_id": "752695253617-eh7f9793ficv5llgkjf5oikldac662j6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSSxBkvfOfwiAXm000I0epNFDOWo3izuM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "752695253617-eh7f9793ficv5llgkjf5oikldac662j6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
