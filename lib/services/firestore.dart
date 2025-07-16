@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:unveilapp/models/user_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:location/location.dart' as loc;
 
 class FirestoreService {
   final CollectionReference _usersCollection = FirebaseFirestore.instance
@@ -106,6 +107,30 @@ class FirestoreService {
       print('✅ Event $eventId removed from user ${user.uid} favorites.');
     } catch (e) {
       print('❌ Error removing favorite event: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateUserLocation(
+    String uid,
+    loc.LocationData locationData,
+  ) async {
+    try {
+      await _usersCollection.doc(uid).update({
+        'location': {
+          'latitude': locationData.latitude,
+          'longitude': locationData.longitude,
+          'accuracy': locationData.accuracy,
+          'altitude': locationData.altitude,
+          'speed': locationData.speed,
+          'speedAccuracy': locationData.speedAccuracy,
+          'heading': locationData.heading,
+          'time': locationData.time,
+        },
+      });
+      print('✅ User location updated for UID: $uid');
+    } catch (e) {
+      print('❌ Error updating user location: $e');
       rethrow;
     }
   }

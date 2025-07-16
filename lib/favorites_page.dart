@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:unveilapp/models/event_model.dart';
 import 'package:unveilapp/models/user_model.dart' as firestore_user; // Aliased
-import 'package:unveilapp/providers/event_provider.dart';
 import 'package:unveilapp/services/event_service.dart';
 import 'package:unveilapp/services/firestore.dart';
 import 'package:unveilapp/services/auth_service.dart';
