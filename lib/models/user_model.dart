@@ -16,13 +16,17 @@ class UserModel {
   @PositionConverter()
   LocationData? location;
 
+  List<int> favoriteEventIds = [];
+
   UserModel({
     this.uid = '',
     this.name = '',
     this.email = '',
+    List<int>? favoriteEventIds,
     Timestamp? signedInAt,
     LocationData? location,
   }) : signedInAt = signedInAt ?? Timestamp.now(),
+       favoriteEventIds = favoriteEventIds ?? <int>[],
        location =
            location ??
            LocationData.fromMap({
@@ -57,11 +61,12 @@ class UserModel {
     // If uid is NOT a field in Firestore, then we add it from snapshot.id
     final userFromJson = _$UserModelFromJson(data ?? {});
     return UserModel(
-      uid: snapshot.id, // Always take uid from the document ID
+      uid: snapshot.id,
       name: userFromJson.name,
       email: userFromJson.email,
       signedInAt: userFromJson.signedInAt,
       location: userFromJson.location,
+      favoriteEventIds: userFromJson.favoriteEventIds,
     );
   }
 

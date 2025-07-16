@@ -16,11 +16,7 @@ class HomePage extends StatelessWidget {
           return const Center(child: Text('error'));
         } else if (snapshot.hasData) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (ModalRoute.of(context)?.settings.name == '/') {
-              Navigator.pushReplacementNamed(context, '/app_shell');
-            } else {
-              Navigator.pushReplacementNamed(context, '/sign_up');
-            }
+            Navigator.pushReplacementNamed(context, '/app_shell');
           });
           return const Scaffold(
             body: Center(
@@ -30,7 +26,7 @@ class HomePage extends StatelessWidget {
             ),
           );
         } else {
-          return SignUpPage();
+          return const SignUpPage();
         }
       },
     );

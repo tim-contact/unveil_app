@@ -68,6 +68,9 @@ class LoginButton extends StatelessWidget {
         ),
         onPressed: () async {
           await loginMethod();
+          if (context.mounted) {
+            Navigator.pushReplacementNamed(context, '/app_shell');
+          }
         },
         icon: Icon(icon, size: 20),
         label: Text(text),

@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:unveilapp/providers/event_provider.dart';
 
 import 'package:unveilapp/routes.dart';
 import 'package:unveilapp/theme.dart';
@@ -8,6 +9,7 @@ import 'package:unveilapp/theme.dart';
 import 'package:unveilapp/services/auth_service.dart';
 import 'package:unveilapp/services/firestore.dart';
 import 'package:unveilapp/services/get_location.dart';
+import 'package:unveilapp/services/event_service.dart';
 import 'package:unveilapp/shared/bottom_nav.dart';
 
 void main() async {
@@ -28,6 +30,14 @@ class App extends StatelessWidget {
         Provider<LocationService>(create: (_) => LocationService()),
         ChangeNotifierProvider<BottomNavProvider>(
           create: (_) => BottomNavProvider(),
+        ),
+        Provider<EventService>(create: (_) => EventService()),
+        ChangeNotifierProvider<Eventprovider>(
+          create:
+              (context) => Eventprovider(
+                context.read<EventService>(),
+                context.read<FirestoreService>(),
+              ),
         ),
       ],
 

@@ -10,6 +10,10 @@ UserModel _$UserModelFromJson(Map<String, dynamic> json) => UserModel(
   uid: json['uid'] as String? ?? '',
   name: json['name'] as String? ?? '',
   email: json['email'] as String? ?? '',
+  favoriteEventIds:
+      (json['favoriteEventIds'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
   signedInAt: const TimestampConverter().fromJson(json['signedInAt']),
   location: const PositionConverter().fromJson(json['location']),
 );
@@ -20,4 +24,5 @@ Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
   'email': instance.email,
   'signedInAt': const TimestampConverter().toJson(instance.signedInAt),
   'location': const PositionConverter().toJson(instance.location),
+  'favoriteEventIds': instance.favoriteEventIds,
 };

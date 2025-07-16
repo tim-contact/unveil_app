@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:unveilapp/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FirestoreService {
   final CollectionReference _usersCollection = FirebaseFirestore.instance
       .collection('users');
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /// Adds or updates a user in the 'users' collection using their UID as the document ID
   Future<void> addUser(UserModel user) async {
@@ -60,15 +63,50 @@ class FirestoreService {
   }
 
   Stream<UserModel?> getUserStream(String uid) {
-    return _usersCollection.snapshots().map((snapshot) {
-      if (snapshot.docs.isNotEmpty) {
+    return _usersCollection.doc(uid).snapshots().map((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
         return UserModel.fromFirestore(
-          snapshot.docs.first as DocumentSnapshot<Map<String, dynamic>>,
+          snapshot as DocumentSnapshot<Map<String, dynamic>>,
           null,
         );
       } else {
         return null;
       }
     });
+  }
+
+  Future<void> addFavoriteEventToUser(int eventId) async {
+    User? user = _auth.currentUser;
+    if (user == null || user.uid.isEmpty) {
+      throw Exception('No user is currently signed in.');
+    }
+
+    try {
+      DocumentReference userDoc = _usersCollection.doc(user.uid);
+      await userDoc.update({
+        'favoriteEventIds': FieldValue.arrayUnion([eventId]),
+      });
+      print('✅ Event $eventId added to user ${user.uid} favorites.');
+    } catch (e) {
+      print('❌ Error adding favorite event: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> removeFavoriteEventFromUser(int eventId) async {
+    User? user = _auth.currentUser;
+    if (user == null || user.uid.isEmpty) {
+      throw Exception('No user is currently signed in.');
+    }
+    try {
+      DocumentReference userDoc = _usersCollection.doc(user.uid);
+      await userDoc.update({
+        'favoriteEventIds': FieldValue.arrayRemove([eventId]),
+      });
+      print('✅ Event $eventId removed from user ${user.uid} favorites.');
+    } catch (e) {
+      print('❌ Error removing favorite event: $e');
+      rethrow;
+    }
   }
 }

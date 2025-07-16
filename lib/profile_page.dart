@@ -111,14 +111,18 @@ class ProfilePage extends StatelessWidget {
     if (confirmed == true) {
       try {
         await authService.signOut();
-        // Navigation back to login/home is typically handled by the root StreamBuilder
-        // listening to authStateChanges (e.g., in your HomePage or main App widget).
-        // If not, you might need:
-        // Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+        // Clear the entire navigation stack and go back to '/'
+        if (context.mounted) {
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil('/sign_up', (route) => false);
+        }
       } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error signing out: $e')));
+        if (context.mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error signing out: $e')));
+        }
       }
     }
   }
