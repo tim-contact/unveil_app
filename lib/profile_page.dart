@@ -424,6 +424,14 @@ class ProfilePage extends StatelessWidget {
               onPressed: () async {
                 Navigator.of(context).pop();
                 await authService.signOut();
+
+                if (context.mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/sign_up',
+                    (Route<dynamic> route) => false,
+                  );
+                }
               },
             ),
           ],
