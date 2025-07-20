@@ -1,6 +1,7 @@
 // lib/widgets/event_card.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:unveilapp/event_details_page.dart';
 import 'package:unveilapp/models/event_model.dart';
 import 'package:unveilapp/providers/event_provider.dart';
 // import 'package:unveilapp/screens/event_details_page.dart'; // TODO: Create and import for navigation
@@ -32,9 +33,11 @@ class EventCard extends StatelessWidget {
         onTap:
             onTap ??
             () {
-              // TODO: Navigate to EventDetailsPage
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Tapped on ${event.eventName}')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EventDetailsPage(event: event),
+                ),
               );
             },
         child: Column(

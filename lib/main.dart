@@ -10,11 +10,15 @@ import 'package:unveilapp/services/auth_service.dart';
 import 'package:unveilapp/services/firestore.dart';
 import 'package:unveilapp/services/get_location.dart';
 import 'package:unveilapp/services/event_service.dart';
+import 'package:unveilapp/services/push_notification_service.dart';
 import 'package:unveilapp/shared/bottom_nav.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  final pushNotificationService = PushNotificationService();
+  await pushNotificationService.initialize();
   runApp(const App());
 }
 
@@ -38,6 +42,10 @@ class App extends StatelessWidget {
                 context.read<EventService>(),
                 context.read<FirestoreService>(),
               ),
+        ),
+
+        Provider<PushNotificationService>(
+          create: (_) => PushNotificationService(),
         ),
       ],
 

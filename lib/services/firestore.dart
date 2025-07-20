@@ -116,6 +116,38 @@ class FirestoreService {
     loc.LocationData locationData,
   ) async {
     try {
+      // First, check if the user document exists
+      final userDoc = await _usersCollection.doc(uid).get();
+
+      if (!userDoc.exists) {
+        print(
+          'FirestoreService: User document not found, creating new user document for $uid',
+        );
+
+        // Get current user info from Firebase Auth
+        final currentUser = _auth.currentUser;
+        if (currentUser != null) {
+          // Create a new user document with basic info
+          final newUser = UserModel(
+            uid: uid,
+            name: currentUser.displayName ?? 'User',
+            email: currentUser.email ?? '',
+            signedInAt: Timestamp.now(),
+            location: locationData,
+            favoriteEventIds: [],
+          );
+
+          await addUser(newUser);
+          print(
+            'FirestoreService: Created new user document and updated location for $uid',
+          );
+          return;
+        } else {
+          throw Exception('No authenticated user found');
+        }
+      }
+
+      // If document exists, just update the location
       await _usersCollection.doc(uid).update({
         'location': {
           'latitude': locationData.latitude,
@@ -128,9 +160,9 @@ class FirestoreService {
           'time': locationData.time,
         },
       });
-      print('✅ User location updated for UID: $uid');
+      print('✅ Location updated for existing user $uid');
     } catch (e) {
-      print('❌ Error updating user location: $e');
+      print('❌ Error updating location for user $uid: $e');
       rethrow;
     }
   }

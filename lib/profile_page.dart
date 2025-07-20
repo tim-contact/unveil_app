@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:location/location.dart' as loc;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:unveilapp/models/user_model.dart';
 import 'package:unveilapp/services/auth_service.dart';
 import 'package:unveilapp/services/firestore.dart';
@@ -9,7 +10,6 @@ import 'package:unveilapp/services/get_location.dart';
 import 'package:geocoding/geocoding.dart' as geo;
 
 class ProfilePage extends StatelessWidget {
-  // Changed from ForYouPage to ProfilePage
   const ProfilePage({Key? key}) : super(key: key);
 
   // Method to update user location
@@ -64,7 +64,6 @@ class ProfilePage extends StatelessWidget {
           "ProfilePage: Got location - Lat: ${locationData.latitude}, Lon: ${locationData.longitude}",
         );
 
-        // Only update the location field
         await firestoreService.updateUserLocation(
           currentUser.uid,
           locationData,
@@ -107,69 +106,20 @@ class ProfilePage extends StatelessWidget {
     }
   }
 
-  Future<String?> getAddressFromCoordinates(
-    double latitude,
-    double longitude,
-  ) async {
-    try {
-      print(
-        "LocationService: Converting coordinates to address: $latitude, $longitude",
-      );
-
-      List<geo.Placemark> placemarks = await geo.placemarkFromCoordinates(
-        latitude,
-        longitude,
-      );
-
-      if (placemarks.isNotEmpty) {
-        geo.Placemark place = placemarks[0];
-
-        // Build a readable address from available components
-        List<String> addressComponents = [];
-
-        if (place.street?.isNotEmpty == true) {
-          addressComponents.add(place.street!);
-        }
-        if (place.subLocality?.isNotEmpty == true) {
-          addressComponents.add(place.subLocality!);
-        }
-        if (place.locality?.isNotEmpty == true) {
-          addressComponents.add(place.locality!);
-        }
-        if (place.administrativeArea?.isNotEmpty == true) {
-          addressComponents.add(place.administrativeArea!);
-        }
-        if (place.country?.isNotEmpty == true) {
-          addressComponents.add(place.country!);
-        }
-
-        String address = addressComponents.join(', ');
-        print("LocationService: Address resolved: $address");
-        return address.isNotEmpty ? address : null;
-      } else {
-        print("LocationService: No placemarks found for coordinates");
-        return null;
-      }
-    } catch (e) {
-      print("LocationService: Error converting coordinates to address: $e");
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
+    final User? firebaseUser = authService.user;
+
+    // If user is not logged in, show login options
+    if (firebaseUser == null) {
+      return _buildLoginPrompt(context, authService);
+    }
+
     final firestoreService = Provider.of<FirestoreService>(
       context,
       listen: false,
     );
-    final User? firebaseUser = authService.user;
-
-    if (firebaseUser == null) {
-      return const Scaffold(
-        body: Center(child: Text('Please log in to view your profile.')),
-      );
-    }
 
     // Trigger location update when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -234,6 +184,192 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
+  // New method to show login options when user is not authenticated
+  Widget _buildLoginPrompt(BuildContext context, AuthService authService) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+      ),
+      body: SafeArea(
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                Theme.of(context).colorScheme.surface,
+              ],
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Spacer(flex: 2),
+
+                // Logo and Welcome Section
+                Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Image.asset(
+                        'assets/Logo.png',
+                        height: 100,
+                        width: 100,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Welcome Back!',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Please sign in to view your profile and manage your favorite events',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+
+                const Spacer(flex: 2),
+
+                // Login Buttons Section
+                Column(
+                  children: [
+                    _buildLoginButton(
+                      context: context,
+                      color: Colors.red,
+                      text: 'Sign in with Google',
+                      icon: FontAwesomeIcons.google,
+                      loginMethod: authService.signInWithGoogle,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildLoginButton(
+                      context: context,
+                      color: Colors.deepPurple,
+                      text: 'Continue as Guest',
+                      icon: FontAwesomeIcons.userNinja,
+                      loginMethod: authService.anonLogin,
+                    ),
+                  ],
+                ),
+
+                const Spacer(flex: 1),
+
+                // Info Text
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primaryContainer.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 24,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Sign in to access your personalized profile, save favorite events, and get location-based recommendations!',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton({
+    required BuildContext context,
+    required Color color,
+    required String text,
+    required IconData icon,
+    required Function loginMethod,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          elevation: 3,
+          shadowColor: color.withOpacity(0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        onPressed: () async {
+          // Show loading indicator
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder:
+                (context) => const Center(child: CircularProgressIndicator()),
+          );
+
+          try {
+            await loginMethod();
+            if (context.mounted) {
+              Navigator.pop(context); // Remove loading dialog
+              // The StreamBuilder will automatically update once user is logged in
+            }
+          } catch (e) {
+            if (context.mounted) {
+              Navigator.pop(context); // Remove loading dialog
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Sign in failed: ${e.toString()}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
+        icon: Icon(icon, size: 20),
+        label: Text(
+          text,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+
   Widget _buildProfileHeader(BuildContext context, UserModel user) {
     return Card(
       elevation: 4,
@@ -243,16 +379,16 @@ class ProfilePage extends StatelessWidget {
         child: Column(
           children: [
             CircleAvatar(
-              radius: 60,
-              backgroundColor: Theme.of(context).colorScheme.secondary,
+              radius: 40,
+              backgroundColor: Colors.pink[300],
               child: Text(
                 user.name?.isNotEmpty == true
                     ? user.name![0].toUpperCase()
                     : '?',
-                style: TextStyle(
-                  fontSize: 40,
+                style: const TextStyle(
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -341,7 +477,6 @@ class ProfilePage extends StatelessWidget {
           if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
             displayAddress = 'Could not determine address';
             locationIcon = Icons.wrong_location_outlined;
-            print("Error or no data for address: ${snapshot.error}");
           } else {
             displayAddress = snapshot.data!;
             locationIcon = Icons.location_on_outlined;
@@ -422,15 +557,29 @@ class ProfilePage extends StatelessWidget {
             TextButton(
               child: const Text('Sign Out'),
               onPressed: () async {
-                Navigator.of(context).pop();
-                await authService.signOut();
+                Navigator.of(context).pop(); // Close dialog first
 
-                if (context.mounted) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    '/sign_up',
-                    (Route<dynamic> route) => false,
-                  );
+                try {
+                  await authService.signOut();
+
+                  // Navigate to sign-up page after successful sign out
+                  if (context.mounted) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/sign_up', // Make sure this route exists in your main.dart
+                      (route) => false, // Remove all previous routes from stack
+                    );
+                  }
+                } catch (e) {
+                  // Handle sign out error
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Sign out failed: ${e.toString()}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
               },
             ),
