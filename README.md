@@ -35,6 +35,12 @@ These instructions will get you a copy of the project up and running on your loc
     flutter run
     ```
 
+## 📸 Screenshots
+
+| Mobile View | Desktop View |
+| ----------- | ------------ |
+| ![Mobile View](assets/unveil_mobile.png) | ![Desktop View](assets/unveil_desktop.png) |
+
 ## ✨ Features
 
 -   **Event Discovery:** Find parties and events happening near you.
